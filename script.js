@@ -1,144 +1,166 @@
 /**
- * Om CSC & Mobile Accessories - Interactive Script
+ * Om CSC & Mobile Accessories
+ * WhatsApp notifications → +91 9409481234
  */
 
+const WA = '919409481234';
+
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Lucide Icons
+
     lucide.createIcons();
 
-    // 2. Theme Toggle Logic
+    // --- Theme Toggle ---
     const themeToggle = document.getElementById('theme-toggle');
     const sunIcon = document.getElementById('sun-icon');
     const moonIcon = document.getElementById('moon-icon');
     const body = document.body;
-
-    // Check for saved theme
     const savedTheme = localStorage.getItem('theme') || 'light-mode';
     body.className = savedTheme;
-    updateThemeIcons(savedTheme);
+    updateIcons(savedTheme);
 
     themeToggle.addEventListener('click', () => {
-        const currentTheme = body.className;
-        const newTheme = currentTheme === 'light-mode' ? 'dark-mode' : 'light-mode';
-        
+        const newTheme = body.className === 'light-mode' ? 'dark-mode' : 'light-mode';
         body.className = newTheme;
         localStorage.setItem('theme', newTheme);
-        updateThemeIcons(newTheme);
+        updateIcons(newTheme);
     });
 
-    function updateThemeIcons(theme) {
-        if (theme === 'dark-mode') {
-            sunIcon.style.display = 'none';
-            moonIcon.style.display = 'block';
-        } else {
-            sunIcon.style.display = 'block';
-            moonIcon.style.display = 'none';
-        }
-        lucide.createIcons(); // Re-initialize icons if needed
+    function updateIcons(theme) {
+        sunIcon.style.display  = theme === 'dark-mode' ? 'none'  : 'block';
+        moonIcon.style.display = theme === 'dark-mode' ? 'block' : 'none';
+        lucide.createIcons();
     }
 
-    // 3. FAQ Accordion
-    const faqItems = document.querySelectorAll('.faq-item');
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        question.addEventListener('click', () => {
-            // Close other items
-            faqItems.forEach(i => {
-                if (i !== item) i.classList.remove('active');
-            });
-            // Toggle current item
+    // --- FAQ Accordion ---
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.querySelector('.faq-question').addEventListener('click', () => {
+            document.querySelectorAll('.faq-item').forEach(i => { if (i !== item) i.classList.remove('active'); });
             item.classList.toggle('active');
         });
     });
 
-    // 4. Form Submissions
-    const appointmentForm = document.getElementById('appointment-form');
-    if (appointmentForm) {
-        appointmentForm.addEventListener('submit', (e) => {
+    // --- Appointment Form → WhatsApp ---
+    const apptForm = document.getElementById('appointment-form');
+    if (apptForm) {
+        apptForm.addEventListener('submit', e => {
             e.preventDefault();
-            const formData = new FormData(appointmentForm);
-            const name = formData.get('name') || document.getElementById('name').value;
-            
-            // Show premium success feedback
-            showFeedback(`Thank you, ${name}! Your booking request has been sent. We will call you soon.`);
-            appointmentForm.reset();
+            const name    = document.getElementById('name').value.trim();
+            const phone   = document.getElementById('phone').value.trim();
+            const service = document.getElementById('service');
+            const date    = document.getElementById('date').value;
+            const time    = document.getElementById('time').value;
+            const serviceText = service.options[service.selectedIndex].text;
+
+            // Format date & time
+            const d = new Date(date);
+            const dateStr = isNaN(d) ? date : d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+            let timeStr = time;
+            if (time) {
+                const [h, m] = time.split(':');
+                const hr = parseInt(h);
+                timeStr = `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+            }
+
+            const msg =
+                `🗓️ *NEW APPOINTMENT – Om CSC*\n\n` +
+                `👤 Name: ${name}\n` +
+                `📞 Phone: ${phone}\n` +
+                `🛠️ Service: ${serviceText}\n` +
+                `📅 Date: ${dateStr}\n` +
+                `⏰ Time: ${timeStr}\n\n` +
+                `_Sent from om-csc.vercel.app_`;
+
+            toast(`✅ Booking submitted! Opening WhatsApp…`);
+            apptForm.reset();
+            setTimeout(() => window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank'), 700);
         });
     }
 
+    // --- Parts Order Form → WhatsApp ---
     const partsForm = document.getElementById('parts-form');
     if (partsForm) {
-        partsForm.addEventListener('submit', (e) => {
+        partsForm.addEventListener('submit', e => {
             e.preventDefault();
-            const model = document.getElementById('phone-model').value;
-            
-            showFeedback(`Inquiry for ${model} parts received. Our team will check availability and notify you.`);
+            const part  = document.getElementById('part-type');
+            const model = document.getElementById('phone-model').value.trim();
+            const desc  = document.getElementById('order-desc').value.trim();
+            const partText = part.options[part.selectedIndex].text;
+
+            const msg =
+                `📦 *NEW PARTS ORDER – Om CSC*\n\n` +
+                `📱 Phone Model: ${model}\n` +
+                `🔩 Part Needed: ${partText}\n` +
+                (desc ? `📝 Details: ${desc}\n` : '') +
+                `\n_Sent from om-csc.vercel.app_`;
+
+            toast(`✅ Parts inquiry sent for ${model}! Opening WhatsApp…`);
             partsForm.reset();
+            setTimeout(() => window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank'), 700);
         });
     }
 
-    // 5. Scroll Reveal Animation (Simple)
-    const observerOptions = {
-        threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
+    // --- Order Parts Button → scroll to form ---
+    const orderBtn = document.getElementById('order-parts-btn');
+    if (orderBtn) {
+        orderBtn.addEventListener('click', () => {
+            const card = document.getElementById('parts-order-card');
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                card.style.outline = '3px solid var(--primary)';
+                setTimeout(() => card.style.outline = '', 2000);
             }
         });
-    }, observerOptions);
+    }
 
-    const revealElements = document.querySelectorAll('.service-card, .product-item, .form-card');
-    revealElements.forEach(el => {
+    // --- Scroll Reveal ---
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.style.opacity = '1';
+                e.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.service-card, .product-item, .form-card').forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
         el.style.transition = 'all 0.6s ease-out';
         observer.observe(el);
     });
 
-    // 6. Mobile Menu (Simple toggle)
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    // --- Mobile Menu ---
+    const menuBtn = document.getElementById('mobile-menu-btn');
     const navLinks = document.querySelector('.nav-links');
-
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', () => {
-            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
-            if (navLinks.style.display === 'flex') {
-                navLinks.style.position = 'absolute';
-                navLinks.style.top = '100%';
-                navLinks.style.left = '0';
-                navLinks.style.width = '100%';
-                navLinks.style.backgroundColor = 'var(--bg-card)';
-                navLinks.style.flexDirection = 'column';
-                navLinks.style.padding = '2rem';
-                navLinks.style.borderBottom = '1px solid var(--border)';
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            const open = navLinks.style.display === 'flex';
+            navLinks.style.display = open ? 'none' : 'flex';
+            if (!open) {
+                Object.assign(navLinks.style, {
+                    position: 'absolute', top: '100%', left: '0',
+                    width: '100%', backgroundColor: 'var(--bg-card)',
+                    flexDirection: 'column', padding: '2rem',
+                    borderBottom: '1px solid var(--border)'
+                });
             }
         });
     }
 
-    // Helper: Feedback Toast
-    function showFeedback(message) {
-        const toast = document.createElement('div');
-        toast.style.position = 'fixed';
-        toast.style.bottom = '100px';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.background = 'var(--primary)';
-        toast.style.color = 'white';
-        toast.style.padding = '1rem 2rem';
-        toast.style.borderRadius = '50px';
-        toast.style.boxShadow = 'var(--shadow)';
-        toast.style.zIndex = '2000';
-        toast.innerText = message;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s';
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
+    // --- Toast Helper ---
+    function toast(msg) {
+        const t = document.createElement('div');
+        Object.assign(t.style, {
+            position: 'fixed', bottom: '110px', left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#25D366', color: '#fff',
+            padding: '0.9rem 2rem', borderRadius: '50px',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+            zIndex: '9999', fontWeight: '600', fontSize: '0.95rem',
+            whiteSpace: 'nowrap', maxWidth: '90vw', textAlign: 'center'
+        });
+        t.innerText = msg;
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.5s'; setTimeout(() => t.remove(), 500); }, 3000);
     }
 });
