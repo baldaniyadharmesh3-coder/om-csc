@@ -142,6 +142,11 @@ span.highlight, h1 span, h2 span, h3 span {
     width: 100%;
 }
 
+.btn-sm {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+}
+
 /* Navbar */
 .navbar {
     position: fixed;
@@ -166,20 +171,21 @@ span.highlight, h1 span, h2 span, h3 span {
 .logo {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 1.25rem;
-    color: var(--text-main);
+    text-decoration: none;
 }
 
-.logo-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
+.logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.3));
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 4px 16px rgba(37, 99, 235, 0.5));
 }
 
 .nav-links {
@@ -532,10 +538,11 @@ section {
 
 /* Contact */
 .contact-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 4rem;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    align-items: center;
+    text-align: center;
 }
 
 .contact-info h2 {
@@ -568,12 +575,29 @@ section {
     color: var(--text-muted);
 }
 
+.contact-details.horizontal-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    text-align: left;
+}
+
+.contact-map.full-map {
+    height: 600px;
+    width: 100%;
+    margin-top: 4rem;
+}
+
 .contact-map {
-    height: 450px;
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
+}
+
+.map-placeholder {
+    height: 100%;
 }
 
 /* Footer */
@@ -834,4 +858,60 @@ body.dark-mode .nano-text p {
 .product-item:hover img {
     transform: scale(1.08);
     filter: brightness(1.05);
+}
+
+/* WhatsApp Catalog Integration */
+.nav-catalog-link {
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700 !important;
+    position: relative;
+}
+
+.nav-catalog-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #25d366;
+    transition: width 0.3s ease;
+}
+
+.nav-catalog-link:hover::after {
+    width: 100%;
+}
+
+.shop-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-whatsapp-catalog {
+    background: #25d366;
+    color: white;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+    border: none;
+}
+
+.btn-whatsapp-catalog:hover {
+    background: #128c7e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(18, 140, 126, 0.4);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .shop-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .shop-actions .btn {
+        width: 100%;
+    }
 }

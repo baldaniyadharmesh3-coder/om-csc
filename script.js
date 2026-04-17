@@ -1,4 +1,4 @@
-update/**
+/**
  * Om CSC & Mobile Accessories
  * WhatsApp notifications → +91 9409481234
  */
